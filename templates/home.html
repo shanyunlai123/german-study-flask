@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% set title = "德语学习复习" %}
+
+{% block content %}
+  <header class="topbar">
+    <div>
+      <h1>德语学习复习</h1>
+      <p>单词、错题、模板放在一个地方，每天从“今日复习”开始。</p>
+    </div>
+    <a class="button" href="{{ url_for('review') }}">今日复习</a>
+  </header>
+
+  <section class="dashboard">
+    <a class="stat" href="{{ url_for('words') }}">
+      <strong>{{ stats.words }}</strong>
+      <span>单词总数</span>
+    </a>
+    <a class="stat" href="{{ url_for('review') }}">
+      <strong>{{ stats.today_words }}</strong>
+      <span>今日待复习</span>
+    </a>
+    <a class="stat" href="{{ url_for('reading') }}">
+      <strong>{{ stats.reading }}</strong>
+      <span>阅读错题</span>
+    </a>
+    <a class="stat" href="{{ url_for('listening') }}">
+      <strong>{{ stats.listening }}</strong>
+      <span>听力错题</span>
+    </a>
+    <a class="stat" href="{{ url_for('writing') }}">
+      <strong>{{ stats.templates }}</strong>
+      <span>写作模板</span>
+    </a>
+  </section>
+{% endblock %}

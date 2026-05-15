@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.env
+instance/
+*.log
+
+# Local SQLite data. Keep this private unless you intentionally want sample data.
+words.db

@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% set title = "导入单词" %}
+
+{% block content %}
+  <header class="topbar">
+    <div>
+      <h1>导入单词</h1>
+      <p>支持 CSV 文件，也支持直接粘贴多行“德语 = 中文”。</p>
+    </div>
+    <a class="button secondary" href="{{ url_for('words') }}">返回单词</a>
+  </header>
+
+  {% if imported %}
+    <section class="notice success">
+      已导入 {{ imported }} 个单词。
+    </section>
+  {% endif %}
+
+  {% if error %}
+    <section class="notice error">
+      {{ error }}
+    </section>
+  {% endif %}
+
+  <section class="panel">
+    <h2>CSV 导入</h2>
+    <p class="hint">CSV 第一行表头必须是：german,chinese,example,level,tag</p>
+    <form method="post" enctype="multipart/form-data" class="stack-form">
+      <input type="hidden" name="import_type" value="csv">
+      <label>
+        选择 CSV 文件
+        <input type="file" name="csv_file" accept=".csv,text/csv" required>
+      </label>
+      <button type="submit">导入 CSV</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>批量粘贴导入</h2>
+    <p class="hint">每行一个单词，格式：德语 = 中文</p>
+    <form method="post" class="stack-form">
+      <input type="hidden" name="import_type" value="text">
+      <label>
+        单词文本
+        <textarea name="bulk_text" placeholder="Haus = 房子&#10;lernen = 学习&#10;die Prüfung = 考试" required></textarea>
+      </label>
+      <button type="submit">批量导入</button>
+    </form>
+  </section>
+{% endblock %}

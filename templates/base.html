@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="德语复习">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>{{ title or "德语学习复习" }}</title>
+  <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+  <link rel="icon" href="{{ url_for('static', filename='icons/icon.svg') }}" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon.svg') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="page">
+    <nav class="nav" aria-label="主导航">
+      <a href="{{ url_for('home') }}">首页</a>
+      <a href="{{ url_for('review') }}">今日复习</a>
+      <a href="{{ url_for('words') }}">单词</a>
+      <a href="{{ url_for('reading') }}">阅读</a>
+      <a href="{{ url_for('listening') }}">听力</a>
+      <a href="{{ url_for('writing') }}">写作</a>
+    </nav>
+
+    {% block content %}{% endblock %}
+  </main>
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

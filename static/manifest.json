@@ -1,0 +1,19 @@
+{
+  "name": "德语学习复习",
+  "short_name": "德语复习",
+  "description": "用于单词、错题和写作模板管理的德语学习系统。",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f3f6fb",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/static/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

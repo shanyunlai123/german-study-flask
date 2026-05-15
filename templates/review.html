@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% set title = "今日复习" %}
+
+{% block content %}
+  <header class="topbar">
+    <div>
+      <h1>今日复习</h1>
+      <p>一张卡片一个单词，向下滑动复习。</p>
+    </div>
+    <a class="button secondary" href="{{ url_for('words') }}">添加单词</a>
+  </header>
+
+  <section class="review-feed">
+    {% if words %}
+      {% for word in words %}
+        <article class="review-card">
+          <div class="review-content">
+            <strong>{{ word.german }}</strong>
+            <span>{{ word.chinese }}</span>
+            {% if word.example %}
+              <p>{{ word.example }}</p>
+            {% endif %}
+            <small>等级 {{ word.level }} · 已复习 {{ word.review_count }} 次</small>
+          </div>
+          <div class="review-actions">
+            <form method="post" action="{{ url_for('review_word', word_id=word.id, result='forgot') }}">
+              <button class="secondary" type="submit">忘记</button>
+            </form>
+            <form method="post" action="{{ url_for('review_word', word_id=word.id, result='remembered') }}">
+              <button type="submit">记住了</button>
+            </form>
+          </div>
+        </article>
+      {% endfor %}
+    {% else %}
+      <section class="panel">
+        <p class="empty">今天没有要复习的单词。</p>
+      </section>
+    {% endif %}
+  </section>
+{% endblock %}

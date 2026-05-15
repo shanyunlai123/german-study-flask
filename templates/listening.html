@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% set title = "听力错题" %}
+
+{% block content %}
+  <header class="topbar">
+    <div>
+      <h1>听力错题</h1>
+      <p>记录听错的内容和原因。</p>
+    </div>
+  </header>
+
+  <section class="panel">
+    <h2>添加听力错题</h2>
+    <form method="post" class="stack-form">
+      <label>
+        标题
+        <input name="title" placeholder="例如：听力 Kapitel 3" required>
+      </label>
+      <label>
+        听错内容
+        <textarea name="detail" placeholder="写下没听懂的词、句子或题目" required></textarea>
+      </label>
+      <label>
+        错因
+        <textarea name="reason" placeholder="例如：连读没听出来，数字听错" required></textarea>
+      </label>
+      <button type="submit">保存</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>记录列表</h2>
+    {% if mistakes %}
+      <ul class="note-list">
+        {% for mistake in mistakes %}
+          <li>
+            <strong>{{ mistake.title }}</strong>
+            <p>{{ mistake.detail }}</p>
+            <span>错因：{{ mistake.reason }}</span>
+            <small>{{ mistake.created_at }}</small>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="empty">还没有听力错题记录。</p>
+    {% endif %}
+  </section>
+{% endblock %}

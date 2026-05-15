@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% set title = "单词管理" %}
+
+{% block content %}
+  <header class="topbar">
+    <div>
+      <h1>单词管理</h1>
+      <p>添加德语和中文即可，例句可以以后再补。</p>
+    </div>
+    <div class="header-actions">
+      <a class="button secondary" href="{{ url_for('import_words') }}">导入单词</a>
+      <a class="button" href="{{ url_for('review') }}">今日复习</a>
+    </div>
+  </header>
+
+  <section class="panel add-word-panel">
+    <h2>添加单词</h2>
+    <form method="post" class="word-form">
+      <label>
+        德语
+        <input name="german" placeholder="die Prüfung" autocomplete="off" required>
+      </label>
+      <label>
+        中文
+        <input name="chinese" placeholder="考试" autocomplete="off" required>
+      </label>
+      <details>
+        <summary>添加例句和标签</summary>
+        <label>
+          例句
+          <input name="example" placeholder="Ich habe morgen eine Prüfung." autocomplete="off">
+        </label>
+        <label>
+          标签
+          <input name="tag" placeholder="考试 / A2 / 动词" autocomplete="off">
+        </label>
+      </details>
+      <button type="submit">添加单词</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>全部单词</h2>
+    {% if words %}
+      <ul class="item-list">
+        {% for word in words %}
+          <li>
+            <div class="item-main">
+              <strong>{{ word.german }}</strong>
+              <span>{{ word.chinese }}</span>
+              {% if word.example %}
+                <p>{{ word.example }}</p>
+              {% endif %}
+              {% if word.tag %}
+                <span class="tag">{{ word.tag }}</span>
+              {% endif %}
+              <small>等级 {{ word.level }} · 复习 {{ word.review_count }} 次 · 下次 {{ word.next_review }}</small>
+            </div>
+            <form method="post" action="{{ url_for('delete_word', word_id=word.id) }}">
+              <button class="danger" type="submit">删除</button>
+            </form>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="empty">还没有单词，先添加一个吧。</p>
+    {% endif %}
+  </section>
+{% endblock %}

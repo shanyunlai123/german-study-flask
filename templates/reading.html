@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% set title = "阅读错题" %}
+
+{% block content %}
+  <header class="topbar">
+    <div>
+      <h1>阅读错题</h1>
+      <p>记录题目、原文线索和错因。</p>
+    </div>
+  </header>
+
+  <section class="panel">
+    <h2>添加阅读错题</h2>
+    <form method="post" class="stack-form">
+      <label>
+        标题
+        <input name="title" placeholder="例如：TestDaF 阅读 T2" required>
+      </label>
+      <label>
+        题目或原文线索
+        <textarea name="question" placeholder="把关键句、题干或选项写在这里" required></textarea>
+      </label>
+      <label>
+        错因
+        <textarea name="reason" placeholder="例如：没看出转折词 jedoch" required></textarea>
+      </label>
+      <button type="submit">保存</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>记录列表</h2>
+    {% if mistakes %}
+      <ul class="note-list">
+        {% for mistake in mistakes %}
+          <li>
+            <strong>{{ mistake.title }}</strong>
+            <p>{{ mistake.question }}</p>
+            <span>错因：{{ mistake.reason }}</span>
+            <small>{{ mistake.created_at }}</small>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="empty">还没有阅读错题记录。</p>
+    {% endif %}
+  </section>
+{% endblock %}

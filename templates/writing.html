@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% set title = "写作模板" %}
+
+{% block content %}
+  <header class="topbar">
+    <div>
+      <h1>写作模板库</h1>
+      <p>保存开头、结尾、观点句和连接词模板。</p>
+    </div>
+  </header>
+
+  <section class="panel">
+    <h2>添加模板</h2>
+    <form method="post" class="stack-form">
+      <label>
+        标题
+        <input name="title" placeholder="例如：表达观点" required>
+      </label>
+      <label>
+        分类
+        <input name="category" placeholder="例如：开头 / 结尾 / 连接词" required>
+      </label>
+      <label>
+        模板内容
+        <textarea name="content" placeholder="Ich bin der Meinung, dass ..." required></textarea>
+      </label>
+      <button type="submit">保存</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>模板列表</h2>
+    {% if templates %}
+      <ul class="note-list">
+        {% for template in templates %}
+          <li>
+            <strong>{{ template.title }}</strong>
+            <span>{{ template.category }}</span>
+            <p>{{ template.content }}</p>
+            <small>{{ template.created_at }}</small>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="empty">还没有写作模板。</p>
+    {% endif %}
+  </section>
+{% endblock %}
