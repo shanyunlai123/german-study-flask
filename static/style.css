@@ -451,7 +451,7 @@ small {
   }
 
   .nav {
-    grid-template-columns: repeat(6, auto);
+    grid-template-columns: repeat(7, auto);
     justify-content: start;
     margin: 0 0 24px;
     padding: 0;

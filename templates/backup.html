@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% set title = "数据同步" %}
+
+{% block content %}
+  <header class="topbar">
+    <div>
+      <h1>数据同步</h1>
+      <p>电脑和手机要同步，就要使用同一个公网网站和同一份数据。</p>
+    </div>
+    <a class="button secondary" href="{{ url_for('home') }}">返回首页</a>
+  </header>
+
+  {% if error %}
+    <section class="notice error">{{ error }}</section>
+  {% endif %}
+
+  {% if imported_words or skipped_words or imported_notes %}
+    <section class="notice success">
+      已导入 {{ imported_words }} 个单词，跳过 {{ skipped_words }} 个重复单词，导入 {{ imported_notes }} 条其他记录。
+    </section>
+  {% endif %}
+
+  <section class="panel">
+    <h2>第一步：从电脑导出</h2>
+    <p class="hint">在电脑本地网站导出 JSON 备份，里面包含单词、阅读错题、听力错题和写作模板。</p>
+    <a class="button" href="{{ url_for('export_backup') }}">下载备份</a>
+  </section>
+
+  <section class="panel">
+    <h2>第二步：导入到云端</h2>
+    <p class="hint">打开 Render/Railway 的公网网址，再把刚才下载的 JSON 备份导入进去。以后电脑和手机都使用公网网址，就会看到同一份数据。</p>
+    <form method="post" action="{{ url_for('import_backup') }}" enctype="multipart/form-data" class="stack-form">
+      <label>
+        JSON 备份文件
+        <input type="file" name="backup_file" accept=".json,application/json" required>
+      </label>
+      <button type="submit">导入备份</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <h2>以后怎么同步</h2>
+    <p class="hint">不要再分别使用电脑本地地址和手机地址。电脑和手机都打开同一个 Render/Railway 公网网址，数据才会自然同步。</p>
+  </section>
+{% endblock %}

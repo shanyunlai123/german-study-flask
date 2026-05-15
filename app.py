@@ -1,11 +1,12 @@
 import csv
 from datetime import date, timedelta
 from io import StringIO
+import json
 import os
 import re
 import sqlite3
 
-from flask import Flask, g, redirect, render_template, request, send_from_directory, url_for
+from flask import Flask, Response, g, redirect, render_template, request, send_from_directory, url_for
 
 
 app = Flask(__name__)
@@ -208,6 +209,30 @@ def add_word(
         ),
     )
     return True
+
+
+def insert_backup_word(row):
+    return add_word(
+        row.get("german"),
+        row.get("chinese"),
+        example=row.get("example"),
+        level=row.get("level"),
+        tag=row.get("tag"),
+        part_of_speech=row.get("part_of_speech"),
+        plural_form=row.get("plural_form"),
+        collocations=row.get("collocations"),
+        examples=row.get("examples"),
+        synonyms=row.get("synonyms"),
+        grammar_notes=row.get("grammar_notes"),
+        level_text=row.get("level_text"),
+    )
+
+
+def rows_as_dicts(table):
+    return [
+        dict(row)
+        for row in get_db().execute(f"SELECT * FROM {table} ORDER BY id ASC").fetchall()
+    ]
 
 
 def decode_upload(raw_content):
@@ -477,6 +502,111 @@ def service_worker():
     response = send_from_directory("static", "service-worker.js")
     response.headers["Service-Worker-Allowed"] = "/"
     return response
+
+
+@app.route("/backup")
+def backup():
+    return render_template("backup.html")
+
+
+@app.route("/backup/export")
+def export_backup():
+    data = {
+        "version": 1,
+        "exported_at": today_text(),
+        "words": rows_as_dicts("words"),
+        "reading_mistakes": rows_as_dicts("reading_mistakes"),
+        "listening_mistakes": rows_as_dicts("listening_mistakes"),
+        "writing_templates": rows_as_dicts("writing_templates"),
+    }
+    payload = json.dumps(data, ensure_ascii=False, indent=2)
+    return Response(
+        payload,
+        mimetype="application/json",
+        headers={
+            "Content-Disposition": "attachment; filename=german-study-backup.json"
+        },
+    )
+
+
+@app.route("/backup/import", methods=["POST"])
+def import_backup():
+    file = request.files.get("backup_file")
+    imported_words = 0
+    skipped_words = 0
+    imported_notes = 0
+    error = ""
+
+    if not file or file.filename == "":
+        error = "请选择一个 JSON 备份文件。"
+    else:
+        try:
+            data = json.loads(decode_upload(file.read()))
+        except json.JSONDecodeError:
+            data = None
+            error = "备份文件不是有效的 JSON。"
+
+        if data:
+            for row in data.get("words", []):
+                if insert_backup_word(row):
+                    imported_words += 1
+                else:
+                    skipped_words += 1
+
+            for row in data.get("reading_mistakes", []):
+                title = (row.get("title") or "").strip()
+                question = (row.get("question") or "").strip()
+                reason = (row.get("reason") or "").strip()
+                if title and question and reason:
+                    get_db().execute(
+                        """
+                        INSERT INTO reading_mistakes
+                        (title, question, reason, created_at)
+                        VALUES (?, ?, ?, ?)
+                        """,
+                        (title, question, reason, row.get("created_at") or today_text()),
+                    )
+                    imported_notes += 1
+
+            for row in data.get("listening_mistakes", []):
+                title = (row.get("title") or "").strip()
+                detail = (row.get("detail") or "").strip()
+                reason = (row.get("reason") or "").strip()
+                if title and detail and reason:
+                    get_db().execute(
+                        """
+                        INSERT INTO listening_mistakes
+                        (title, detail, reason, created_at)
+                        VALUES (?, ?, ?, ?)
+                        """,
+                        (title, detail, reason, row.get("created_at") or today_text()),
+                    )
+                    imported_notes += 1
+
+            for row in data.get("writing_templates", []):
+                title = (row.get("title") or "").strip()
+                category = (row.get("category") or "").strip()
+                content = (row.get("content") or "").strip()
+                if title and category and content:
+                    get_db().execute(
+                        """
+                        INSERT INTO writing_templates
+                        (title, category, content, created_at)
+                        VALUES (?, ?, ?, ?)
+                        """,
+                        (title, category, content, row.get("created_at") or today_text()),
+                    )
+                    imported_notes += 1
+
+            get_db().commit()
+
+    return render_template(
+        "backup.html",
+        imported_words=imported_words,
+        skipped_words=skipped_words,
+        imported_notes=imported_notes,
+        error=error,
+    )
 
 
 @app.route("/words", methods=["GET", "POST"])
