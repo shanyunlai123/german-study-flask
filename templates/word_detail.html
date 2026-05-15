@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% set title = word.german %}
+
+{% macro list_block(title, value) %}
+  {% if value %}
+    <section class="detail-section">
+      <h2>{{ title }}</h2>
+      <ul>
+        {% for item in value.split('\n') if item.strip() %}
+          <li>{{ item }}</li>
+        {% endfor %}
+      </ul>
+    </section>
+  {% endif %}
+{% endmacro %}
+
+{% block content %}
+  <header class="topbar">
+    <div>
+      <h1>{{ word.german }}</h1>
+      <p>{{ word.chinese }}</p>
+    </div>
+    <a class="button secondary" href="{{ url_for('words') }}">返回单词</a>
+  </header>
+
+  <section class="panel word-detail">
+    <dl class="detail-grid">
+      <div>
+        <dt>单词</dt>
+        <dd>{{ word.german }}</dd>
+      </div>
+      <div>
+        <dt>词性</dt>
+        <dd>{{ word.part_of_speech or "未填写" }}</dd>
+      </div>
+      <div>
+        <dt>复数</dt>
+        <dd>{{ word.plural_form or "未填写" }}</dd>
+      </div>
+      <div>
+        <dt>中文</dt>
+        <dd>{{ word.chinese }}</dd>
+      </div>
+    </dl>
+  </section>
+
+  {{ list_block("搭配", word.collocations) }}
+  {{ list_block("例句", word.examples or word.example) }}
+  {{ list_block("近义词", word.synonyms) }}
+  {{ list_block("语法", word.grammar_notes) }}
+  {{ list_block("等级", word.level_text or word.tag) }}
+
+  <section class="panel">
+    <small>间隔复习等级 {{ word.level }} · 已复习 {{ word.review_count }} 次 · 下次复习 {{ word.next_review }}</small>
+  </section>
+{% endblock %}

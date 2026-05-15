@@ -5,7 +5,7 @@
   <header class="topbar">
     <div>
       <h1>导入单词</h1>
-      <p>支持 CSV 文件，也支持直接粘贴多行“德语 = 中文”。</p>
+      <p>支持 CSV，也支持粘贴结构化词条或多行“德语 = 中文”。</p>
     </div>
     <a class="button secondary" href="{{ url_for('words') }}">返回单词</a>
   </header>
@@ -35,7 +35,7 @@
 
   <section class="panel">
     <h2>CSV 导入</h2>
-    <p class="hint">CSV 第一行至少要有 german 和 chinese。也可以包含 example、level、tag。</p>
+    <p class="hint">CSV 第一行至少要有 german 和 chinese。建议字段：german,part_of_speech,plural_form,chinese,collocations,examples,synonyms,grammar_notes,level_text。</p>
     <form method="post" enctype="multipart/form-data" class="stack-form">
       <input type="hidden" name="import_type" value="csv">
       <label>
@@ -48,12 +48,12 @@
 
   <section class="panel">
     <h2>批量粘贴导入</h2>
-    <p class="hint">每行一个单词。支持“德语 = 中文”、制表符、逗号、中文全角等号，也支持“die Prüfung 考试”。</p>
+    <p class="hint">支持“德语 = 中文”，也支持粘贴完整结构化词条。</p>
     <form method="post" class="stack-form">
       <input type="hidden" name="import_type" value="text">
       <label>
         单词文本
-        <textarea name="bulk_text" placeholder="Haus = 房子&#10;lernen = 学习&#10;die Prüfung = 考试" required></textarea>
+        <textarea name="bulk_text" placeholder="单词: Gewürz&#10;词性: das&#10;复数: die Gewürze&#10;中文: 香料；调味料&#10;&#10;搭配:&#10;- scharfe Gewürze = 辛辣香料&#10;&#10;例句:&#10;- Dieses Gericht enthält viele Gewürze.&#10;  这道菜里含有很多香料。&#10;&#10;近义词:&#10;- Gewürz = 具体香料&#10;&#10;语法:&#10;- mit + Dativ&#10;&#10;等级:&#10;- B1 高频" required></textarea>
       </label>
       <button type="submit">批量导入</button>
     </form>

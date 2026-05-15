@@ -166,26 +166,69 @@ gunicorn app:app --bind 0.0.0.0:$PORT
 
 进入“单词”页面，点击“导入单词”。
 
-CSV 文件第一行必须包含这些字段：
+长期使用时，推荐每个单词都按这个结构整理：
 
 ```text
-german,chinese,example,level,tag
+单词:
+词性:
+复数:
+中文:
+
+搭配:
+- 
+
+例句:
+- 德语句子
+  中文翻译
+
+近义词:
+- A = 
+- B = 
+
+语法:
+- 
+
+等级:
+- 
 ```
 
-示例：
-
-```csv
-german,chinese,example,level,tag
-Haus,房子,Das Haus ist groß.,1,名词
-lernen,学习,Ich lerne Deutsch.,2,动词
-```
-
-也可以直接粘贴多行文本，每行一个：
+CSV 推荐字段：
 
 ```text
-Haus = 房子
-lernen = 学习
-die Prüfung = 考试
+german,part_of_speech,plural_form,chinese,collocations,examples,synonyms,grammar_notes,level_text
+```
+
+最少需要：
+
+```text
+german,chinese
+```
+
+也可以直接粘贴结构化文本：
+
+```text
+单词: Gewürz
+词性: das
+复数: die Gewürze
+中文: 香料；调味料
+
+搭配:
+- scharfe Gewürze = 辛辣香料
+- mit Gewürzen kochen = 用香料做饭
+
+例句:
+- Dieses Gericht enthält viele Gewürze.
+  这道菜里含有很多香料。
+
+近义词:
+- Gewürz = 具体香料
+- Würze = 调味感；风味
+
+语法:
+- mit + Dativ
+
+等级:
+- B1 高频
 ```
 
 ## 间隔复习规则

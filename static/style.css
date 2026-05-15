@@ -217,6 +217,11 @@ button,
   background: #ffffff;
 }
 
+.word-title-link {
+  color: inherit;
+  text-decoration: none;
+}
+
 .item-main,
 .review-content {
   min-width: 0;
@@ -322,6 +327,62 @@ small {
   color: #52606d;
 }
 
+.word-detail {
+  display: grid;
+  gap: 16px;
+}
+
+.detail-grid {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+}
+
+.detail-grid div {
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.detail-grid div:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.detail-grid dt {
+  margin-bottom: 4px;
+  color: #52606d;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.detail-grid dd {
+  margin: 0;
+  color: #1f2933;
+  font-size: 18px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.detail-section {
+  margin-bottom: 14px;
+  padding: 16px;
+  border: 1px solid #d8dee9;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.detail-section ul {
+  display: grid;
+  gap: 10px;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.detail-section li {
+  line-height: 1.5;
+  white-space: pre-wrap;
+}
+
 @media (min-width: 720px) {
   .page {
     padding: 24px 24px 48px;
@@ -395,8 +456,16 @@ small {
   }
 
   .item-list li {
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr auto auto;
     align-items: center;
+  }
+
+  .detail-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .detail-grid div {
+    min-height: 78px;
   }
 
   .review-card {

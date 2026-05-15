@@ -5,7 +5,7 @@
   <header class="topbar">
     <div>
       <h1>单词管理</h1>
-      <p>添加德语和中文即可，例句可以以后再补。</p>
+      <p>按长期词条格式保存，方便复习、导入和以后 AI 自动解析。</p>
     </div>
     <div class="header-actions">
       <a class="button secondary" href="{{ url_for('import_words') }}">导入单词</a>
@@ -17,22 +17,42 @@
     <h2>添加单词</h2>
     <form method="post" class="word-form">
       <label>
-        德语
-        <input name="german" placeholder="die Prüfung" autocomplete="off" required>
+        单词
+        <input name="german" placeholder="Gewürz" autocomplete="off" required>
+      </label>
+      <label>
+        词性
+        <input name="part_of_speech" placeholder="das / der / die / Verb" autocomplete="off">
+      </label>
+      <label>
+        复数
+        <input name="plural_form" placeholder="die Gewürze" autocomplete="off">
       </label>
       <label>
         中文
-        <input name="chinese" placeholder="考试" autocomplete="off" required>
+        <input name="chinese" placeholder="香料；调味料" autocomplete="off" required>
       </label>
       <details>
-        <summary>添加例句和标签</summary>
+        <summary>添加搭配、例句和语法</summary>
         <label>
-          例句
-          <input name="example" placeholder="Ich habe morgen eine Prüfung." autocomplete="off">
+          搭配
+          <textarea name="collocations" placeholder="scharfe Gewürze = 辛辣香料&#10;mit Gewürzen kochen = 用香料做饭"></textarea>
         </label>
         <label>
-          标签
-          <input name="tag" placeholder="考试 / A2 / 动词" autocomplete="off">
+          例句
+          <textarea name="examples" placeholder="Dieses Gericht enthält viele Gewürze.&#10;这道菜里含有很多香料。"></textarea>
+        </label>
+        <label>
+          近义词
+          <textarea name="synonyms" placeholder="Gewürz = 具体香料&#10;Würze = 调味感；风味"></textarea>
+        </label>
+        <label>
+          语法
+          <textarea name="grammar_notes" placeholder="mit + Dativ"></textarea>
+        </label>
+        <label>
+          等级
+          <textarea name="level_text" placeholder="B1 高频"></textarea>
         </label>
       </details>
       <button type="submit">添加单词</button>
@@ -46,16 +66,19 @@
         {% for word in words %}
           <li>
             <div class="item-main">
-              <strong>{{ word.german }}</strong>
-              <span>{{ word.chinese }}</span>
-              {% if word.example %}
-                <p>{{ word.example }}</p>
+              <a class="word-title-link" href="{{ url_for('word_detail', word_id=word.id) }}">
+                <strong>{{ word.german }}</strong>
+              </a>
+              {% if word.part_of_speech or word.plural_form %}
+                <span>{{ word.part_of_speech }}{% if word.part_of_speech and word.plural_form %} · {% endif %}{{ word.plural_form }}</span>
               {% endif %}
-              {% if word.tag %}
-                <span class="tag">{{ word.tag }}</span>
+              <span>{{ word.chinese }}</span>
+              {% if word.level_text or word.tag %}
+                <span class="tag">{{ word.level_text or word.tag }}</span>
               {% endif %}
               <small>等级 {{ word.level }} · 复习 {{ word.review_count }} 次 · 下次 {{ word.next_review }}</small>
             </div>
+            <a class="button secondary" href="{{ url_for('word_detail', word_id=word.id) }}">详情</a>
             <form method="post" action="{{ url_for('delete_word', word_id=word.id) }}">
               <button class="danger" type="submit">删除</button>
             </form>

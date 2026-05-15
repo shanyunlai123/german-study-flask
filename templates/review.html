@@ -16,9 +16,12 @@
         <article class="review-card">
           <div class="review-content">
             <strong>{{ word.german }}</strong>
+            {% if word.part_of_speech or word.plural_form %}
+              <span>{{ word.part_of_speech }}{% if word.part_of_speech and word.plural_form %} · {% endif %}{{ word.plural_form }}</span>
+            {% endif %}
             <span>{{ word.chinese }}</span>
-            {% if word.example %}
-              <p>{{ word.example }}</p>
+            {% if word.examples or word.example %}
+              <p>{{ (word.examples or word.example).split('\n')[0] }}</p>
             {% endif %}
             <small>等级 {{ word.level }} · 已复习 {{ word.review_count }} 次</small>
           </div>
