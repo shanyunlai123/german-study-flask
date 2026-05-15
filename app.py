@@ -122,6 +122,22 @@ def clean_level(value):
     return min(max(level, 1), max(INTERVAL_DAYS))
 
 
+def normalize_german_key(value):
+    return re.sub(r"\s+", " ", (value or "").strip()).casefold()
+
+
+def word_exists(german, exclude_id=None):
+    normalized = normalize_german_key(german)
+    rows = get_db().execute("SELECT id, german FROM words").fetchall()
+
+    for row in rows:
+        if exclude_id is not None and row["id"] == exclude_id:
+            continue
+        if normalize_german_key(row["german"]) == normalized:
+            return True
+    return False
+
+
 def normalize_lines(value):
     lines = []
     for line in (value or "").replace("\r\n", "\n").split("\n"):
@@ -159,6 +175,9 @@ def add_word(
     level_text = normalize_lines(level_text or tag)
 
     if not german or not chinese:
+        return False
+
+    if word_exists(german):
         return False
 
     get_db().execute(
@@ -417,6 +436,21 @@ def cleanup_word_condition():
     """
 
 
+def find_duplicate_groups():
+    rows = get_db().execute(
+        "SELECT * FROM words ORDER BY german ASC, id ASC"
+    ).fetchall()
+    groups = {}
+
+    for row in rows:
+        key = normalize_german_key(row["german"])
+        if not key:
+            continue
+        groups.setdefault(key, []).append(row)
+
+    return [group for group in groups.values() if len(group) > 1]
+
+
 @app.before_request
 def before_request():
     init_db()
@@ -530,6 +564,31 @@ def bulk_delete_words():
         get_db().commit()
 
     return redirect(url_for("incomplete_words"))
+
+
+@app.route("/words/duplicates")
+def duplicate_words():
+    return render_template("duplicate_words.html", groups=find_duplicate_groups())
+
+
+@app.route("/words/duplicates/delete", methods=["POST"])
+def delete_duplicate_words():
+    duplicate_ids = []
+
+    for group in find_duplicate_groups():
+        keep = group[0]
+        for word in group[1:]:
+            duplicate_ids.append(word["id"])
+
+    if duplicate_ids:
+        placeholders = ",".join("?" for _ in duplicate_ids)
+        get_db().execute(
+            f"DELETE FROM words WHERE id IN ({placeholders})",
+            duplicate_ids,
+        )
+        get_db().commit()
+
+    return redirect(url_for("duplicate_words"))
 
 
 @app.route("/words/import", methods=["GET", "POST"])

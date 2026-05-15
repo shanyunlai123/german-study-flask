@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% set title = "重复词条" %}
+
+{% block content %}
+  <header class="topbar">
+    <div>
+      <h1>重复词条</h1>
+      <p>同一个德语单词只保留最早添加的一条，后面的重复项可以批量删除。</p>
+    </div>
+    <a class="button secondary" href="{{ url_for('words') }}">返回单词</a>
+  </header>
+
+  <section class="panel">
+    <h2>重复检查</h2>
+    {% if groups %}
+      <form method="post" action="{{ url_for('delete_duplicate_words') }}" onsubmit="return confirm('确认删除所有重复词条吗？每组会保留最早的一条。');">
+        <button class="danger" type="submit">删除所有重复项</button>
+      </form>
+
+      <ul class="duplicate-groups">
+        {% for group in groups %}
+          <li>
+            <strong>{{ group[0].german }}</strong>
+            <small>共 {{ group|length }} 条，保留 ID {{ group[0].id }}</small>
+            <ul>
+              {% for word in group %}
+                <li>
+                  ID {{ word.id }} · {{ word.german }} · {{ word.chinese }}
+                  {% if loop.first %}
+                    <span class="tag keep-tag">保留</span>
+                  {% else %}
+                    <span class="tag danger-tag">将删除</span>
+                  {% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="empty">没有重复词条。</p>
+    {% endif %}
+  </section>
+{% endblock %}
