@@ -371,6 +371,27 @@ def parse_bulk_line(line):
     return "", ""
 
 
+def parse_comma_word_list(text):
+    pattern = re.compile(r"(?:^|\s)([A-Za-zÄÖÜäöüß][A-Za-zÄÖÜäöüß\- ]*?),")
+    matches = list(pattern.finditer(text))
+    words = []
+
+    for index, match in enumerate(matches):
+        german = match.group(1).strip()
+        if not german:
+            continue
+
+        chinese_start = match.end()
+        chinese_end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
+        chinese = text[chinese_start:chinese_end].strip()
+        chinese = re.sub(r"\s+", " ", chinese).strip()
+
+        if german and chinese and re.search(r"[\u3400-\u9fff]", chinese):
+            words.append((german, chinese))
+
+    return words
+
+
 def incomplete_word_condition():
     return """
         TRIM(COALESCE(german, '')) = ''
@@ -578,6 +599,15 @@ def import_words():
                         skipped += 1
                         if len(skipped_lines) < 5:
                             skipped_lines.append(str(word_data))
+            elif "," in bulk_text and re.search(r"[\u3400-\u9fff]", bulk_text):
+                comma_words = parse_comma_word_list(bulk_text)
+                for german, chinese in comma_words:
+                    if add_word(german, chinese, tag="批量导入"):
+                        imported += 1
+                    else:
+                        skipped += 1
+                        if len(skipped_lines) < 5:
+                            skipped_lines.append(f"{german},{chinese}"[:120])
             else:
                 for line in bulk_text.splitlines():
                     line = line.strip()
