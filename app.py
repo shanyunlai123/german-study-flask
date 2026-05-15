@@ -2,6 +2,7 @@ import csv
 from datetime import date, timedelta
 from io import StringIO
 import os
+import re
 import sqlite3
 
 from flask import Flask, g, redirect, render_template, request, send_from_directory, url_for
@@ -152,10 +153,31 @@ def normalize_csv_row(row):
 
 
 def parse_bulk_line(line):
+    line = re.sub(r"^\s*\d+[\.\)、)]\s*", "", line.strip())
+    if not line:
+        return "", ""
+
     for separator in ("=", "＝", ":", "："):
         if separator in line:
             german, chinese = line.split(separator, 1)
             return german.strip(), chinese.strip()
+
+    for separator in ("\t", ",", "，", ";", "；", " - ", " – ", " — "):
+        if separator in line:
+            german, chinese = line.split(separator, 1)
+            return german.strip(), chinese.strip()
+
+    wide_space_match = re.split(r"\s{2,}", line, maxsplit=1)
+    if len(wide_space_match) == 2:
+        return wide_space_match[0].strip(), wide_space_match[1].strip()
+
+    chinese_match = re.search(r"[\u3400-\u9fff]", line)
+    if chinese_match:
+        index = chinese_match.start()
+        german = line[:index].strip(" \t,;:：=＝-–—")
+        chinese = line[index:].strip(" \t,;:：=＝-–—")
+        return german, chinese
+
     return "", ""
 
 
@@ -210,6 +232,7 @@ def words():
 def import_words():
     imported = 0
     skipped = 0
+    skipped_lines = []
     error = ""
 
     if request.method == "POST":
@@ -249,6 +272,8 @@ def import_words():
                             imported += 1
                         else:
                             skipped += 1
+                            if len(skipped_lines) < 5:
+                                skipped_lines.append(str(dict(row)))
                     get_db().commit()
 
         if import_type == "text":
@@ -262,10 +287,18 @@ def import_words():
                     imported += 1
                 else:
                     skipped += 1
+                    if len(skipped_lines) < 5:
+                        skipped_lines.append(line[:120])
             get_db().commit()
 
         if not error:
-            return redirect(url_for("import_words", imported=imported, skipped=skipped))
+            return render_template(
+                "import_words.html",
+                imported=imported,
+                skipped=skipped,
+                skipped_lines=skipped_lines,
+                error=error,
+            )
 
     imported = request.args.get("imported", imported)
     skipped = request.args.get("skipped", skipped)
@@ -273,6 +306,7 @@ def import_words():
         "import_words.html",
         imported=imported,
         skipped=skipped,
+        skipped_lines=skipped_lines,
         error=error,
     )
 

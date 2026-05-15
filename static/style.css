@@ -279,6 +279,18 @@ small {
   background: #fee2e2;
 }
 
+.warning {
+  color: #713f12;
+  background: #fef3c7;
+}
+
+.skip-list {
+  margin: 8px 0 0;
+  padding-left: 18px;
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+
 .item-list p,
 .note-list p,
 .review-card p {
