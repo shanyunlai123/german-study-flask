@@ -198,6 +198,11 @@ button,
   background: #b91c1c;
 }
 
+.danger-tag {
+  color: #7f1d1d;
+  background: #fee2e2;
+}
+
 .item-list,
 .note-list {
   display: grid;
@@ -411,7 +416,7 @@ small {
   }
 
   .header-actions {
-    grid-template-columns: auto auto;
+    grid-template-columns: auto auto auto;
   }
 
   h1 {

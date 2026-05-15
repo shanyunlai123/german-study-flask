@@ -371,6 +371,22 @@ def parse_bulk_line(line):
     return "", ""
 
 
+def incomplete_word_condition():
+    return """
+        TRIM(COALESCE(german, '')) = ''
+        OR TRIM(COALESCE(chinese, '')) = ''
+        OR TRIM(COALESCE(part_of_speech, '')) = ''
+        OR TRIM(COALESCE(plural_form, '')) = ''
+        OR (
+            TRIM(COALESCE(collocations, '')) = ''
+            AND TRIM(COALESCE(examples, '')) = ''
+            AND TRIM(COALESCE(synonyms, '')) = ''
+            AND TRIM(COALESCE(grammar_notes, '')) = ''
+            AND TRIM(COALESCE(level_text, '')) = ''
+        )
+    """
+
+
 @app.before_request
 def before_request():
     init_db()
@@ -441,6 +457,18 @@ def word_detail(word_id):
     if word is None:
         return redirect(url_for("words"))
     return render_template("word_detail.html", word=word)
+
+
+@app.route("/words/incomplete")
+def incomplete_words():
+    rows = get_db().execute(
+        f"""
+        SELECT * FROM words
+        WHERE {incomplete_word_condition()}
+        ORDER BY id DESC
+        """
+    ).fetchall()
+    return render_template("incomplete_words.html", words=rows)
 
 
 @app.route("/words/import", methods=["GET", "POST"])
@@ -548,7 +576,8 @@ def import_words():
 def delete_word(word_id):
     get_db().execute("DELETE FROM words WHERE id = ?", (word_id,))
     get_db().commit()
-    return redirect(url_for("words"))
+    next_page = request.form.get("next") or url_for("words")
+    return redirect(next_page)
 
 
 @app.route("/review")
