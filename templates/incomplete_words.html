@@ -5,7 +5,7 @@
   <header class="topbar">
     <div>
       <h1>残缺词条</h1>
-      <p>这里显示缺少词性、复数、中文，或没有任何扩展信息的单词卡片。</p>
+      <p>缺少扩展信息的词条会保留；批量删除只会处理缺少单词、中文、词性或复数的词条。</p>
     </div>
     <a class="button secondary" href="{{ url_for('words') }}">返回单词</a>
   </header>
@@ -13,31 +13,47 @@
   <section class="panel">
     <h2>筛选结果</h2>
     {% if words %}
-      <ul class="item-list">
-        {% for word in words %}
-          <li>
-            <div class="item-main">
-              <a class="word-title-link" href="{{ url_for('word_detail', word_id=word.id) }}">
-                <strong>{{ word.german or "未填写单词" }}</strong>
-              </a>
-              <span>{{ word.chinese or "未填写中文" }}</span>
-              <small>
-                词性：{{ word.part_of_speech or "缺失" }} ·
-                复数：{{ word.plural_form or "缺失" }} ·
-                ID {{ word.id }}
-              </small>
-              {% if not word.collocations and not word.examples and not word.synonyms and not word.grammar_notes and not word.level_text %}
-                <span class="tag danger-tag">缺少扩展信息</span>
+      <form method="post" action="{{ url_for('bulk_delete_words') }}" class="bulk-form" onsubmit="return confirm('确认删除选中的残缺词条吗？缺少扩展信息但基础字段完整的词条不会被批量删除。');">
+        <div class="bulk-actions">
+          <button class="danger" type="submit">删除选中</button>
+        </div>
+        <ul class="item-list">
+          {% for word in words %}
+            <li>
+              <div class="select-cell">
+                {% if word.can_bulk_delete %}
+                  <input type="checkbox" name="word_ids" value="{{ word.id }}">
+                {% else %}
+                  <span class="keep-mark">保留</span>
+                {% endif %}
+              </div>
+              <div class="item-main">
+                <a class="word-title-link" href="{{ url_for('word_detail', word_id=word.id) }}">
+                  <strong>{{ word.german or "未填写单词" }}</strong>
+                </a>
+                <span>{{ word.chinese or "未填写中文" }}</span>
+                <small>
+                  词性：{{ word.part_of_speech or "缺失" }} ·
+                  复数：{{ word.plural_form or "缺失" }} ·
+                  ID {{ word.id }}
+                </small>
+                {% if word.can_bulk_delete %}
+                  <span class="tag danger-tag">可批量删除</span>
+                {% elif not word.collocations and not word.examples and not word.synonyms and not word.grammar_notes and not word.level_text %}
+                  <span class="tag keep-tag">仅缺少扩展信息，保留</span>
+                {% endif %}
+              </div>
+              <a class="button secondary" href="{{ url_for('word_detail', word_id=word.id) }}">查看</a>
+              {% if word.can_bulk_delete %}
+                <form method="post" action="{{ url_for('delete_word', word_id=word.id) }}">
+                  <input type="hidden" name="next" value="{{ url_for('incomplete_words') }}">
+                  <button class="danger" type="submit">删除</button>
+                </form>
               {% endif %}
-            </div>
-            <a class="button secondary" href="{{ url_for('word_detail', word_id=word.id) }}">查看</a>
-            <form method="post" action="{{ url_for('delete_word', word_id=word.id) }}">
-              <input type="hidden" name="next" value="{{ url_for('incomplete_words') }}">
-              <button class="danger" type="submit">删除</button>
-            </form>
-          </li>
-        {% endfor %}
-      </ul>
+            </li>
+          {% endfor %}
+        </ul>
+      </form>
     {% else %}
       <p class="empty">没有筛到残缺词条。</p>
     {% endif %}

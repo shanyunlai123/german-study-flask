@@ -387,6 +387,15 @@ def incomplete_word_condition():
     """
 
 
+def cleanup_word_condition():
+    return """
+        TRIM(COALESCE(german, '')) = ''
+        OR TRIM(COALESCE(chinese, '')) = ''
+        OR TRIM(COALESCE(part_of_speech, '')) = ''
+        OR TRIM(COALESCE(plural_form, '')) = ''
+    """
+
+
 @app.before_request
 def before_request():
     init_db()
@@ -463,12 +472,43 @@ def word_detail(word_id):
 def incomplete_words():
     rows = get_db().execute(
         f"""
-        SELECT * FROM words
+        SELECT *,
+        CASE
+            WHEN {cleanup_word_condition()} THEN 1
+            ELSE 0
+        END AS can_bulk_delete
+        FROM words
         WHERE {incomplete_word_condition()}
         ORDER BY id DESC
         """
     ).fetchall()
     return render_template("incomplete_words.html", words=rows)
+
+
+@app.route("/words/bulk-delete", methods=["POST"])
+def bulk_delete_words():
+    raw_ids = request.form.getlist("word_ids")
+    word_ids = []
+
+    for raw_id in raw_ids:
+        try:
+            word_ids.append(int(raw_id))
+        except ValueError:
+            continue
+
+    if word_ids:
+        placeholders = ",".join("?" for _ in word_ids)
+        get_db().execute(
+            f"""
+            DELETE FROM words
+            WHERE id IN ({placeholders})
+            AND ({cleanup_word_condition()})
+            """,
+            word_ids,
+        )
+        get_db().commit()
+
+    return redirect(url_for("incomplete_words"))
 
 
 @app.route("/words/import", methods=["GET", "POST"])

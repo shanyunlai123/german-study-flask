@@ -139,6 +139,11 @@ textarea {
   font: inherit;
 }
 
+input[type="checkbox"] {
+  width: 24px;
+  min-height: 24px;
+}
+
 input[type="file"] {
   padding-top: 11px;
 }
@@ -201,6 +206,34 @@ button,
 .danger-tag {
   color: #7f1d1d;
   background: #fee2e2;
+}
+
+.keep-tag,
+.keep-mark {
+  color: #14532d;
+  background: #dcfce7;
+}
+
+.keep-mark {
+  width: fit-content;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.bulk-form {
+  display: grid;
+  gap: 12px;
+}
+
+.bulk-actions {
+  display: grid;
+}
+
+.select-cell {
+  display: flex;
+  align-items: center;
 }
 
 .item-list,
@@ -464,8 +497,12 @@ small {
   }
 
   .item-list li {
-    grid-template-columns: 1fr auto auto;
+    grid-template-columns: auto 1fr auto auto;
     align-items: center;
+  }
+
+  .bulk-actions {
+    justify-content: start;
   }
 
   .card-head {
