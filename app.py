@@ -215,8 +215,29 @@ def get_csv_value(row, *names):
     return ""
 
 
+STRUCTURED_FIELD_RE = re.compile(
+    r"(单词|词性|复数|中文|搭配|例句|近义词|语法|等级|german|word|chinese)\s*[:：]",
+    re.IGNORECASE,
+)
+
+
+def expand_inline_fields(text):
+    def replace_match(match):
+        if match.start() == 0:
+            return match.group(0)
+
+        previous = text[match.start() - 1]
+        if previous == "\n":
+            return match.group(0)
+
+        return "\n" + match.group(0)
+
+    return STRUCTURED_FIELD_RE.sub(replace_match, text)
+
+
 def parse_structured_words(text):
-    blocks = re.split(r"\n\s*\n(?=\s*(?:单词|german|word)\s*[:：])", text.strip())
+    normalized_text = expand_inline_fields(text.strip())
+    blocks = re.split(r"(?=\n?\s*(?:单词|german|word)\s*[:：])", normalized_text)
     words = []
 
     for block in blocks:
@@ -291,12 +312,17 @@ def parse_structured_words(text):
                         last_example_index = len(data[section]) - 1
                 continue
 
+            if section in ("collocations", "synonyms", "grammar_notes", "level_text"):
+                data[section].append(line)
+                continue
+
             if section == "examples" and last_example_index is not None:
                 data["examples"][last_example_index] += "\n" + line
                 continue
 
-            if section:
+            if section == "examples":
                 data[section].append(line)
+                last_example_index = len(data[section]) - 1
 
         if data["german"] and data["chinese"]:
             words.append(

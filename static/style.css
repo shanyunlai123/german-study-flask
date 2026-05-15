@@ -327,35 +327,38 @@ small {
   color: #52606d;
 }
 
-.word-detail {
+.word-card-full {
   display: grid;
-  gap: 16px;
+  gap: 18px;
 }
 
-.detail-grid {
+.card-head {
   display: grid;
   gap: 12px;
-  margin: 0;
 }
 
-.detail-grid div {
-  padding-bottom: 12px;
+.card-head div,
+.card-block {
+  padding-bottom: 14px;
   border-bottom: 1px solid #e2e8f0;
 }
 
-.detail-grid div:last-child {
-  padding-bottom: 0;
-  border-bottom: 0;
+.card-head strong {
+  display: block;
+  overflow-wrap: anywhere;
+  font-size: 28px;
+  line-height: 1.15;
 }
 
-.detail-grid dt {
-  margin-bottom: 4px;
+.field-label {
+  display: block;
+  margin-bottom: 5px;
   color: #52606d;
   font-size: 14px;
   font-weight: 700;
 }
 
-.detail-grid dd {
+.card-head p {
   margin: 0;
   color: #1f2933;
   font-size: 18px;
@@ -363,24 +366,24 @@ small {
   overflow-wrap: anywhere;
 }
 
-.detail-section {
-  margin-bottom: 14px;
-  padding: 16px;
-  border: 1px solid #d8dee9;
-  border-radius: 8px;
-  background: #ffffff;
+.card-block h2 {
+  margin-bottom: 10px;
 }
 
-.detail-section ul {
+.card-block ul {
   display: grid;
   gap: 10px;
   margin: 0;
   padding-left: 20px;
 }
 
-.detail-section li {
+.card-block li {
   line-height: 1.5;
   white-space: pre-wrap;
+}
+
+.card-footer {
+  margin-top: -4px;
 }
 
 @media (min-width: 720px) {
@@ -460,11 +463,11 @@ small {
     align-items: center;
   }
 
-  .detail-grid {
+  .card-head {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .detail-grid div {
+  .card-head div {
     min-height: 78px;
   }
 

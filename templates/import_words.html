@@ -48,12 +48,12 @@
 
   <section class="panel">
     <h2>批量粘贴导入</h2>
-    <p class="hint">支持“德语 = 中文”，也支持粘贴完整结构化词条。</p>
+    <p class="hint">支持粘贴完整结构化词条。每次出现新的“单词:”就会开始下一张单词卡片。</p>
     <form method="post" class="stack-form">
       <input type="hidden" name="import_type" value="text">
       <label>
         单词文本
-        <textarea name="bulk_text" placeholder="单词: Gewürz&#10;词性: das&#10;复数: die Gewürze&#10;中文: 香料；调味料&#10;&#10;搭配:&#10;- scharfe Gewürze = 辛辣香料&#10;&#10;例句:&#10;- Dieses Gericht enthält viele Gewürze.&#10;  这道菜里含有很多香料。&#10;&#10;近义词:&#10;- Gewürz = 具体香料&#10;&#10;语法:&#10;- mit + Dativ&#10;&#10;等级:&#10;- B1 高频" required></textarea>
+        <textarea name="bulk_text" placeholder="单词: die Betreuung 词性: die 复数: die Betreuungen 中文: 照顾；陪护；指导&#10;&#10;搭配:&#10;&#10;gute Betreuung = 良好的照顾&#10;medizinische Betreuung = 医疗护理&#10;&#10;例句:&#10;&#10;Die Kinder brauchen eine gute Betreuung. 孩子们需要良好的照顾。&#10;&#10;近义词:&#10;&#10;Betreuung = 长期照顾/指导&#10;Pflege = 更偏护理、照料&#10;&#10;语法:&#10;&#10;brauchen + Akkusativ&#10;&#10;等级:&#10;&#10;B2 高频&#10;&#10;单词: das Gewürz 词性: das 复数: die Gewürze 中文: 香料；调味料" required></textarea>
       </label>
       <button type="submit">批量导入</button>
     </form>
