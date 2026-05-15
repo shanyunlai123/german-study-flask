@@ -12,7 +12,7 @@
 
   {% if imported %}
     <section class="notice success">
-      已导入 {{ imported }} 个单词。
+      已导入 {{ imported }} 个单词{% if skipped %}，跳过 {{ skipped }} 行{% endif %}。
     </section>
   {% endif %}
 
@@ -24,7 +24,7 @@
 
   <section class="panel">
     <h2>CSV 导入</h2>
-    <p class="hint">CSV 第一行表头必须是：german,chinese,example,level,tag</p>
+    <p class="hint">CSV 第一行至少要有 german 和 chinese。也可以包含 example、level、tag。</p>
     <form method="post" enctype="multipart/form-data" class="stack-form">
       <input type="hidden" name="import_type" value="csv">
       <label>
@@ -37,7 +37,7 @@
 
   <section class="panel">
     <h2>批量粘贴导入</h2>
-    <p class="hint">每行一个单词，格式：德语 = 中文</p>
+    <p class="hint">每行一个单词，支持：德语 = 中文，也支持中文全角等号：德语 ＝ 中文。</p>
     <form method="post" class="stack-form">
       <input type="hidden" name="import_type" value="text">
       <label>

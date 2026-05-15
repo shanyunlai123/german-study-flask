@@ -135,6 +135,30 @@ def add_word(german, chinese, example="", level=1, tag=""):
     return True
 
 
+def decode_upload(raw_content):
+    for encoding in ("utf-8-sig", "utf-16", "gbk"):
+        try:
+            return raw_content.decode(encoding)
+        except UnicodeDecodeError:
+            continue
+    return raw_content.decode("utf-8", errors="ignore")
+
+
+def normalize_csv_row(row):
+    return {
+        (key or "").strip().lower(): (value or "").strip()
+        for key, value in row.items()
+    }
+
+
+def parse_bulk_line(line):
+    for separator in ("=", "＝", ":", "："):
+        if separator in line:
+            german, chinese = line.split(separator, 1)
+            return german.strip(), chinese.strip()
+    return "", ""
+
+
 @app.before_request
 def before_request():
     init_db()
@@ -185,6 +209,7 @@ def words():
 @app.route("/words/import", methods=["GET", "POST"])
 def import_words():
     imported = 0
+    skipped = 0
     error = ""
 
     if request.method == "POST":
@@ -196,17 +221,24 @@ def import_words():
                 error = "请选择一个 CSV 文件。"
             else:
                 raw_content = file.read()
+                content = decode_upload(raw_content)
+                sample = content[:2048]
                 try:
-                    content = raw_content.decode("utf-8-sig")
-                except UnicodeDecodeError:
-                    content = raw_content.decode("gbk")
-                reader = csv.DictReader(StringIO(content))
-                required_fields = {"german", "chinese", "example", "level", "tag"}
+                    dialect = csv.Sniffer().sniff(sample, delimiters=",;\t")
+                except csv.Error:
+                    dialect = csv.excel
 
-                if not reader.fieldnames or not required_fields.issubset(reader.fieldnames):
-                    error = "CSV 表头必须包含 german,chinese,example,level,tag。"
+                reader = csv.DictReader(StringIO(content), dialect=dialect)
+                fieldnames = {
+                    (field or "").strip().lower()
+                    for field in (reader.fieldnames or [])
+                }
+
+                if not {"german", "chinese"}.issubset(fieldnames):
+                    error = "CSV 表头至少需要包含 german 和 chinese。可选字段：example,level,tag。"
                 else:
                     for row in reader:
+                        row = normalize_csv_row(row)
                         if add_word(
                             row.get("german"),
                             row.get("chinese"),
@@ -215,23 +247,34 @@ def import_words():
                             row.get("tag"),
                         ):
                             imported += 1
+                        else:
+                            skipped += 1
                     get_db().commit()
 
         if import_type == "text":
             bulk_text = request.form.get("bulk_text", "")
             for line in bulk_text.splitlines():
-                if "=" not in line:
+                line = line.strip()
+                if not line:
                     continue
-                german, chinese = line.split("=", 1)
+                german, chinese = parse_bulk_line(line)
                 if add_word(german, chinese, tag="批量导入"):
                     imported += 1
+                else:
+                    skipped += 1
             get_db().commit()
 
         if not error:
-            return redirect(url_for("import_words", imported=imported))
+            return redirect(url_for("import_words", imported=imported, skipped=skipped))
 
     imported = request.args.get("imported", imported)
-    return render_template("import_words.html", imported=imported, error=error)
+    skipped = request.args.get("skipped", skipped)
+    return render_template(
+        "import_words.html",
+        imported=imported,
+        skipped=skipped,
+        error=error,
+    )
 
 
 @app.route("/words/<int:word_id>/delete", methods=["POST"])
